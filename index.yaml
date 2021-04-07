@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  fdk-community-store:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2021-04-07T13:41:44.668230165+02:00"
+    description: Config for FDK community store
+    digest: 79c5854624ecb9794accb1e1c57991cb616ed318a9dd6a911ab8605b0107e24d
+    home: https://github.com/Informasjonsforvaltning/fdk-community-store
+    name: fdk-community-store
+    urls:
+    - https://informasjonsforvaltning.github.io/fdk-community-store/fdk-community-store-0.1.0.tgz
+    version: 0.1.0
+generated: "2021-04-07T13:41:44.667792442+02:00"
