@@ -23,7 +23,7 @@ jobs:
       - name: Apply Helm template
         run: |
           helm repo add fdk-community-store https://informasjonsforvaltning.github.io/fdk-community-store/
-          helm fetch --untar --untardir ./helm fdk-community-store/community-store
+          helm fetch --untar --untardir ./helm fdk-community-store/fdk-community-store
           helm template -f ${{ steps.write_file.outputs.filePath }} ./helm/fdk-community-store/ > ./kubectlapply.yaml
           chmod o+w ./kubectlapply.yaml
           cat kubectlapply.yaml
