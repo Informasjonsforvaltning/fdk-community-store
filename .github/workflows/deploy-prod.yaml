@@ -8,51 +8,19 @@ on:
 
 jobs:
   deploy-production:
-    name: Deploy to production environment on merge to main branch
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Create yaml file from secret
-        id: write_file
-        uses: timheuer/base64-to-file@master
-        with:
-          fileName: 'secret.yaml'
-          encodedString: ${{ secrets.DIGDIR_FDK_COMMUNITY_STORE_PROD }}
-
-      - name: Apply Helm template
-        run: |
-          helm template -f ${{ steps.write_file.outputs.filePath }} \
-          ./helm-sources/ > ./kubectlapply.yaml
-          chmod o+w ./kubectlapply.yaml
-          cat kubectlapply.yaml
-
-      - name: Auth gcloud CLI for deploy
-        uses: google-github-actions/auth@main
-        with:
-          credentials_json: ${{ secrets.DIGDIR_FDK_PROD_AUTODEPLOY }}
-
-      - name: Deploy to GCP
-        run: |
-          gcloud container clusters get-credentials digdir-fdk-prod --region europe-north1-a --project digdir-fdk-prod
-          kubectl apply -f ./kubectlapply.yaml --force
-          if ! kubectl --namespace=prod rollout status deployment fdk-community-store; then
-          kubectl --namespace=prod rollout undo deployment fdk-community-store
-          kubectl --namespace=prod rollout status deployment fdk-community-store
-          exit 1
-          fi  
-
-      - name: Notify slack
-        uses: 8398a7/action-slack@v3
-        with:
-          mention: 'channel'
-          if_mention: failure
-          status: ${{ job.status }}
-          author_name: 'Application: fdk-community-store | Environment: prod'
-          fields: commit,author,workflow,message
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: always()
+    name: Deploy to prod on merge to main branch
+    uses: Informasjonsforvaltning/workflows/.github/workflows/deploy.yaml@main
+    with:
+      app_name: fdk-community-store
+      caller_sha: ${{ github.sha }}
+      repo: ${{ github.repository }}
+      actor: ${{ github.actor }}
+      environment: prod
+      cluster: digdir-fdk-prod
+      snapshot_disk: fdk-prod-community-store
+      snapshot_name: autogcs-autodeploy-prod-community-store
+      snapshot_zone: europe-north1-a
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DIGDIR_FDK_AUTODEPLOY: ${{ secrets.DIGDIR_FDK_PROD_AUTODEPLOY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
